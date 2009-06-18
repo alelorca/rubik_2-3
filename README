@@ -1,0 +1,61 @@
+***********************************************************************
+* rubik_2^3 version 0.9 (10.07.2008)                                  *
+*                                                                     *
+* This file is part of rubik_2^3                                      *
+* Copyright (C) 2007-2008 Alejandro Lorca <alelorca@yahoo.es>         *
+***********************************************************************
+
+rubik_2^3 is designed as a tool to calculate by brute force all the 
+moves of the Pocket Rubik cube. It also solves any scrambled cube
+configuration by the lowest amount of moves. 
+
+
+***********************************************************************
+* GNU GENERAL PUBLIC LICENSE                                          *
+***********************************************************************
+ Copyright (C) 2008 Alejandro Lorca <alelorca@yahoo.es>
+ 
+ rubik_2^3 is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ rubik_2^3 is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with rubik_2^3.  If not, see <http://www.gnu.org/licenses/>.
+
+
+***********************************************************************
+* INSTALL: run the following commands in your terminal                *
+***********************************************************************
+./configure
+make
+
+***********************************************************************
+* TEST OF INSTALLATION: run the following command in your terminal    *
+***********************************************************************
+./rubik_2^3 -c -s 1
+
+and you should see the following output
+
+Goal: to build at most 1 levels of single-direction quarter turns
+Level  0 out of 1 finished.       1 new turns found!
+Level  1 out of 1 finished.       3 new turns found!
+-----------------------------------------------------------
+A total of 4 turns were found within 2 families
+      1 turn(s) corresponding to 
+      3 turn(s) corresponding to 4^3
+--------------------------------------------------------
+      4 turn(s) corresponding to the families altogether
+
+***********************************************************************
+* TUTORIAL: for further info, please consult the documentation at     *
+***********************************************************************
+rubik_2^3.ps or in the web http://
+
+
+Good luck!
