@@ -1,6 +1,6 @@
 /*
  This file is part of rubik_2^3
- Copyright (C) 2008 Alejandro Lorca <alelorca@yahoo.es>
+ Copyright (C) 2009 Alejandro Lorca <alelorca@yahoo.es>
  
  rubik_2^3 is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -29,16 +29,14 @@ const ind mod=24;
 *                                                                      *
 ************************************************************************
 */
-ind get_family_id(const ind_v& p, arrayfamcycle& map_famcycle){
+inf get_family_id(const ind_v& p, arrayfamcycle& map_famcycle){
   const ind_v cycle=perm_cycles_swap(p);
-  int map_famcycle_sz=map_famcycle.size();
-  int map_famcycle_id;
-  if ( map_famcycle[cycle] == 0 && ( map_famcycle_sz == 0 || cycle.size() != 0 ) ){
-    map_famcycle_id=map_famcycle_sz++;
+  arrayfamcycle::size_type map_famcycle_sz=map_famcycle.size();
+  inf map_famcycle_id=map_famcycle[cycle];
+  if ( map_famcycle_sz == 0 || ( map_famcycle_id == 0 && cycle.size() != 0 ) ){
+    // It is new family
+    map_famcycle_id=map_famcycle_sz;
     map_famcycle[cycle]=map_famcycle_id;
-  }
-  else{
-    map_famcycle_id=map_famcycle[cycle];
   }
   return map_famcycle_id;
 }
@@ -120,37 +118,37 @@ gnumeric operation_to_omap(const ind_v& v){
 /*
 ************************************************************************
 *                                                                      *
-* operation_to_name function                                           *
+* operation_to_sequence function                                           *
 *                                                                      *
 ************************************************************************
 */
-string operation_to_name(const ind_v& v){
-  string name;
+string operation_to_sequence(const ind_v& v){
+  string sequence;
   if ( v.size() != 0 )
     for ( ind_v::const_reverse_iterator rit = v.rbegin();
 	  rit != v.rend(); rit++){
       //    for ( ind_v::const_iterator rit = v.begin();
       //	  rit != v.end(); rit++){
       if ( *rit < 4 ){
-	name+="+";
+	sequence+="+";
       } else if ( *rit < 7){
-	name+="-";
+	sequence+="-";
       } else if ( *rit < 10){
-	name+=":";
+	sequence+=":";
       }
       
       if ( *rit%3 == 1 ){
-	name+="X";
+	sequence+="X";
       } else if ( *rit%3 == 2 ){
-	name+="Y";
+	sequence+="Y";
       } else if ( *rit%3 == 0 ){
-	name+="Z";
+	sequence+="Z";
       }
     } else {
     // The identity
-    name+="E";
+    sequence+="E";
   }
-  return name;
+  return sequence;
 }
 /*
 ************************************************************************
@@ -430,6 +428,32 @@ string perm_to_notation(ind_v p){
 /*
 ************************************************************************
 *                                                                      *
+* write_heading function                                               *
+*                                                                      *
+************************************************************************
+*/
+int write_heading(const string& filename, const bool& writetofile){
+  ofstream file;
+  if (writetofile) file.open(filename.c_str(), ofstream::app);  
+  string infoline;
+  try { 
+    infoline = format_heading();
+  } catch ( length_error format_error ) {
+    cout << "[Error <write_description>: " <<format_error.what() 
+	 << "]"<< endl;
+    exit(1);
+  }
+  if (writetofile){
+    file << infoline << endl;
+  } else {
+    cout << infoline << endl;
+  }
+  if (writetofile) file.close();
+  return 0;  
+}
+/*
+************************************************************************
+*                                                                      *
 * write_description function                                           *
 *                                                                      *
 ************************************************************************
@@ -444,7 +468,7 @@ int write_description(const arrayte& lte, const string& filename,
     // Some code building ltd
     
     d.entry = (*iter);
-    d.name = operation_to_name(iter->operation);
+    d.sequence = operation_to_sequence(iter->operation);
     d.family_id = perm_to_fam(iter->permutation);
     d.notation = perm_to_notation(iter->permutation);
 
@@ -475,7 +499,7 @@ int write_description(const arraytc& ltc, const string& filename,
     // Some code building ltd
     
     d.entry = (iter->member)[0];
-    d.name = operation_to_name((iter->member)[0].operation);
+    d.sequence = operation_to_sequence((iter->member)[0].operation);
     d.family_id = perm_to_fam((iter->member)[0].permutation);
     d.notation = perm_to_notation((iter->member)[0].permutation);
 
@@ -499,6 +523,50 @@ int write_description(const arraytc& ltc, const string& filename,
 /*
 ************************************************************************
 *                                                                      *
+* format_heading function                                              *
+*                                                                      *
+************************************************************************
+*/
+string format_heading(){
+  string line;
+  // We compose a formatted line for output with fields
+  const string column_pad = " ";
+  const string omap = "#Operation"; 
+  const string map = "Turn_id";
+  string::size_type omap_pad_sz = 10, map_pad_sz = 9,
+    sequence_pad_sz = 38, family_id_pad_sz = 9, notation_pad_sz = 39;
+
+  // Some test before printing integers right aligned
+  if ( omap_pad_sz < omap.size() ){
+    throw length_error("padding size for omap negative");
+  } 
+
+  else if ( map_pad_sz < map.size() ){
+    throw length_error("padding size for map negative");
+  }
+
+  const string omap_pad(omap_pad_sz-omap.size(),' ');
+  const string map_pad(map_pad_sz-map.size(),' ');
+  const string sequence = "Turn_sequence", sequence_pad(sequence_pad_sz-sequence.size(),' ');
+  const string family_id = "Family", family_id_pad(family_id_pad_sz-family_id.size(),' ');
+  const string notation = "Cycle_notation", notation_pad(notation_pad_sz-notation.size(),' ');
+
+
+  // Building the line
+  line = omap_pad + omap;
+  line += column_pad;
+  line += sequence + sequence_pad;
+  line += column_pad;
+  line += family_id + family_id_pad;
+  line += column_pad;
+  line += map_pad + map;
+  line += column_pad;
+  line += notation; // + notation_pad;
+  return line;
+}
+/*
+************************************************************************
+*                                                                      *
 * format_entry function                                                *
 *                                                                      *
 ************************************************************************
@@ -506,47 +574,48 @@ int write_description(const arraytc& ltc, const string& filename,
 string format_entry(const Turn_Description& td){
   string line;
   // We compose a formatted line for output with fields
-
-  const string column_pad = "\t";
-  //const string omap = itos((td.entry).omap); 
-  // const string map = itos((td.entry).permutation_id);
-  //string::size_type omap_pad_sz = 12, map_pad_sz = 11;
+  const string column_pad = " ";
+  const string omap = itos((td.entry).omap); 
+  const string map = itos((td.entry).permutation_id);
+  string::size_type omap_pad_sz = 10, map_pad_sz = 9,
+    sequence_pad_sz = 38, family_id_pad_sz = 9, notation_pad_sz = 39;
 
   // Some test before printing integers right aligned
-  //if ( omap_pad_sz < omap.size() ){
-  //  throw length_error("padding size for omap negative");
-  //} 
-  /*
+  if ( omap_pad_sz < omap.size() ){
+    throw length_error("padding size for omap negative");
+  } 
+
   else if ( map_pad_sz < map.size() ){
     throw length_error("padding size for map negative");
   }
-  */
-  //const string omap_pad(omap_pad_sz-omap.size(),' ');
-  //  const string map_pad(map_pad_sz-map.size(),' ');
-  const string name = td.name, name_pad = td.name.size() < 8 ? "\t": "";
-  const string fam = td.family_id, fam_pad = td.family_id.size() < 8 ? "\t": "";
-  const string notation = td.notation;
+
+  const string omap_pad(omap_pad_sz-omap.size(),' ');
+  const string map_pad(map_pad_sz-map.size(),' ');
+  const string sequence = td.sequence, sequence_pad(sequence_pad_sz-sequence.size(),' ');
+  const string family_id = td.family_id, family_id_pad(family_id_pad_sz-family_id.size(),' ');
+  const string notation = td.notation, notation_pad(notation_pad_sz-notation.size(),' ');
+
 
   // Building the line
-  //line = omap_pad + omap;
-  //line += column_pad;
-  line += name + name_pad;
+  line = omap_pad + omap;
   line += column_pad;
-  line += fam + fam_pad;
+  line += sequence + sequence_pad;
   line += column_pad;
-  //  line += map_pad + map;
-  //  line += column_pad;
+  line += family_id + family_id_pad;
+  line += column_pad;
+  line += map_pad + map;
+  line += column_pad;
   line += notation; // + notation_pad;
   return line;
 }
 /*
 ************************************************************************
 *                                                                      *
-* do_name_product                                                      *
+* do_sequence_product                                                  *
 *                                                                      *
 ************************************************************************
 */
-string do_name_product(const string& a, const string& b){
+string do_sequence_product(const string& a, const string& b){
   return a+b;
 }
 /*
@@ -690,16 +759,17 @@ Turn_Entry fill_identity (arrayfamcycle& map_famcycle){
 */
 int get_identity (arrayte& le, arrayfe& map_fam, arrayfamcycle& map_famcycle){
   const Turn_Entry e = fill_identity(map_famcycle);
-  if ( debug ) cout << "e inserted, e_perm=" << vtos(e.permutation) << endl;
+  if ( debug ) cout << "[get_identity: e inserted, e_perm=" 
+		    << vtos(e.permutation) << "]" << endl;
   bool newturn = insert_if_new(e, map_fam);
   if ( newturn ) le.push_back(e);
-  if ( debug ) cout << "size of le=" << le.size() << endl;
   return 0;
 }
 int get_identity (arraytc& lc, arrayfe& map_fam, arrayfamcycle& map_famcycle){
   Turn_Class eclass;
   const Turn_Entry e = fill_identity(map_famcycle);
-  if ( debug ) cout << "e inserted, e_perm=" << vtos(e.permutation) << endl;
+  if ( debug ) cout << "[get_identity: e inserted, e_perm=" 
+		    << vtos(e.permutation) << "]" << endl;
   (eclass.member).push_back(e);
   bool newturn = insert_if_new(e, map_fam);
   if ( newturn ){
@@ -707,7 +777,6 @@ int get_identity (arraytc& lc, arrayfe& map_fam, arrayfamcycle& map_famcycle){
     // Fill the vector makes no sense for the identity
     lc.push_back(eclass);
   }
-  if ( debug ) cout << "size of lc=" << lc.size() << endl;
   return 0;
 }
 /*
@@ -835,17 +904,17 @@ bool insert_if_new(const Turn_Entry& turn, arrayfe& map_fam){
     // New family found!
     turn_aint.insert(turn.permutation_id);
     map_fam[turn.family_id] = turn_aint; // Here we could use iterfam->second
-    if ( debug ) cout << "New family (" << turn.family_id 
-		      << ") inserted" << endl;
+    if ( debug ) cout << "[insert_if_new: New family (" << turn.family_id
+		      << ") inserted]" << endl;
   } else {
     // Look in its family for antecesor with the same map
     const arrayint::const_iterator 
       itermap = map_fam[turn.family_id].find(turn.permutation_id);
     if ( itermap == map_fam[turn.family_id].end() ){
       map_fam[turn.family_id].insert(turn.permutation_id);
-      if (debug) cout << "New member (" << turn.permutation_id 
+      if (debug) cout << "[insert_if_new: New member (" << turn.permutation_id 
 		      << ") in an old family (" << turn.family_id 
-		      << ") inserted" << endl;
+		      << ") inserted]" << endl;
 
     } else {
       newturn = false;
@@ -1010,34 +1079,20 @@ int generate_rotations(const int& rot_stylecode,
 	get_moves(ltegenerators, ltelevelm1, ltelevel, map_fam, map_famcycle);
       }
     }
-    if ( outputfile == "/dev/null" ){
-      // Wow! you don't want any output, do you? I'll save you some time
+
+    // Compose the full description for humans :) and print or write
+    if ( debug ) cout << "[generate_rotations: " 
+		      << "beginning compose_description]" << endl;
+    bool writetofile = ( outputfile == "" ) ? 0 : 1;
+    if ( ilevel == 0 ){
+      if ( writetofile ) file.open(outputfile.c_str(),ofstream::out);
+      write_heading(outputfile, writetofile);
     }
-    else {
-      // Compose the full description for humans :) and print or write
-      if ( debug ) cout << "[generate_rotations: " 
-			<< "beginning compose_description]" << endl;
-      if ( outputfile == "" ){
-	// All to screen
-	if ( debug ) cout << "[generate_rotations: " 
-			  << "beginning write_level]" << endl;
-	if ( equivalence ){
-	  write_description(ltclevel,outputfile,0);
-	} else {
-	  write_description(ltelevel,outputfile,0);
-	}
-      } else {
-	if ( ilevel == 0 ) file.open(outputfile.c_str(),ofstream::out);
-	// Compose the full description for humans :) and print or write
-	if ( debug ) {
-	  cout << "[generate_rotations: beginning write_level]" << endl;
-	}
-	if ( equivalence ){
-	  write_description(ltclevel,outputfile,1);
-	} else {
-	  write_description(ltelevel,outputfile,1);
-	}
-      }
+    if ( debug ) cout << "[generate_rotations: beginning write_level]" << endl;
+    if ( equivalence ){
+      write_description(ltclevel, outputfile, writetofile);
+    } else {
+      write_description(ltelevel, outputfile, writetofile);
     }
 
     // Preparing the ltelevelm1 for next level
@@ -1126,25 +1181,27 @@ int run_rubik(const string& rot_style, int& rot_level,
   ind rot_stylecode;
   debug=debug_flag;
   // This is our main function to begin the generate_rotations
+
+  cout << "rubik_2^3 (C) 2009 Alejandro Lorca <alelorca@yahoo.es>" << endl;
   cout << "Goal: to build at most ";
-  if ( rot_level < 0 ){
-    rot_level = -2; // -1 is reserved, it does real nothing.
+    if ( rot_level < 0 ){
+      rot_level = -2; // -1 is reserved, it does real nothing.
       cout << "all";
-  } else {
-    cout << rot_level;
-  }
-  cout << " levels of ";
-  if ( rot_style == "-s" ){
-    cout << "single-direction quarter turns";
-    rot_stylecode = 1;
-  } else if ( rot_style == "-q" ){
-    cout << "quarter turns";
-    rot_stylecode = 2;
-  } else if ( rot_style == "-f" ){
-    cout << "full turns";
-    rot_stylecode = 3;
-  }
-  cout << endl;
+    } else {
+      cout << rot_level;
+    }
+    cout << " levels of ";
+    if ( rot_style == "-s" ){
+      cout << "single-direction quarter turns";
+      rot_stylecode = 1;
+    } else if ( rot_style == "-q" ){
+      cout << "quarter turns";
+      rot_stylecode = 2;
+    } else if ( rot_style == "-f" ){
+      cout << "full turns";
+      rot_stylecode = 3;
+    }
+    cout << endl;
   // Setting the God's variable
   ngen=rot_stylecode*3;
   return generate_rotations(rot_stylecode, rot_level, 

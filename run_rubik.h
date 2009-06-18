@@ -35,15 +35,16 @@
 //#include <ginac/ginac.h>
 
 // Type definitions
-typedef char ind;
-typedef std::vector<ind> ind_v;
-typedef long long int gnumeric;
+typedef char ind; // The main type used for describing a facet
+typedef short int inf; // The main type used for describing a family
+typedef std::vector<ind> ind_v; // Type for describing a whole permutation cycle
+typedef long long int gnumeric; // Type for large integers as turns searched
 
 // Set
 typedef std::set<int> arrayint;
 
 // Maps
-typedef std::map <ind, arrayint> arrayfe;
+typedef std::map <inf, arrayint> arrayfe;
 typedef std::map <ind_v, int> arrayfamcycle;
 
 // Structs
@@ -52,13 +53,13 @@ struct Turn_Entry{
   ind_v operation;
   char level; // operation.size()
   ind_v permutation; // vector
-  ind family_id; // family identificator
+  inf family_id; // family identificator
   int permutation_id; // permutation identificator
 };
 struct Turn_Description{
   struct Turn_Entry entry;
   std::string omap; // operation values mapped into an integer
-  std::string name; // operation values mapped into (+-2)XYZ string
+  std::string sequence; // operation values mapped into (+-2)XYZ string
   std::string family_id; // family of the permutation 2*3^2*12
   std::string permutation_id; // integer defining our permutation
   std::string notation; // standard permutation notation (ab)(hj3)(klw)
@@ -74,12 +75,12 @@ typedef std::deque<Turn_Entry> arraytem1;
 typedef std::vector<Turn_Description> arraytd;
 
 // Functions
-ind get_family_id(const ind_v&, arrayfamcycle&);
+inf get_family_id(const ind_v&, arrayfamcycle&);
 template <typename T> std::string itos(const T&);
 std::string itos(const ind &);
 int ipow(const ind&, const ind_v::size_type&);
 gnumeric operation_to_omap(const ind_v&);
-std::string operation_to_name(const ind_v&);
+std::string operation_to_sequence(const ind_v&);
 bool compare_notation(const Turn_Description&, const Turn_Description&);
 std::vector<Turn_Description> sort_by_notation(const arraytd&);
 ind cublet_position(const ind&);
@@ -95,8 +96,10 @@ int perm_to_map(const ind_v&);
 ind_v map_to_perm(int);
 std::string perm_to_type(const ind_v&);
 int compose_description(const arraytd&,	arraytd&);
+int write_heading(const std::string&, const bool&);
 int write_description(const arrayte&, const std::string&, const bool&);
 int write_description(const arraytc&, const std::string&, const bool&);
+std::string format_heading();
 std::string format_entry(const Turn_Description&);
 int write_level(const arraytd&, const std::string&);
 Turn_Entry perm_product(const Turn_Entry&, const Turn_Entry&, arrayfamcycle&);
@@ -110,7 +113,7 @@ int get_identity(arraytc&, arrayfe&, arrayfamcycle&);
 int get_generators (const int&, arrayte&, arrayfe&, arrayfamcycle&);
 int get_generators (const int&, arraytc&, arrayfe&, arrayfamcycle&);
 bool insert_if_new(const Turn_Entry&, arrayfe&);
-std::string do_name_product(const std::string&, const std::string&);
+std::string do_sequence_product(const std::string&, const std::string&);
 int get_moves(const arrayte&, arrayte&, arrayte&, arrayfe&, arrayfamcycle&);
 int get_moves(const arraytc&, arraytc&, arraytc&, arrayfe&, arrayfamcycle&);
 int generate_rotations(const int&, const int&, const bool&, const std::string&);
