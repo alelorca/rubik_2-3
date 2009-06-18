@@ -1079,20 +1079,21 @@ int generate_rotations(const int& rot_stylecode,
 	get_moves(ltegenerators, ltelevelm1, ltelevel, map_fam, map_famcycle);
       }
     }
-
-    // Compose the full description for humans :) and print or write
-    if ( debug ) cout << "[generate_rotations: " 
-		      << "beginning compose_description]" << endl;
-    bool writetofile = ( outputfile == "" ) ? 0 : 1;
-    if ( ilevel == 0 ){
-      if ( writetofile ) file.open(outputfile.c_str(),ofstream::out);
-      write_heading(outputfile, writetofile);
-    }
-    if ( debug ) cout << "[generate_rotations: beginning write_level]" << endl;
-    if ( equivalence ){
-      write_description(ltclevel, outputfile, writetofile);
-    } else {
-      write_description(ltelevel, outputfile, writetofile);
+    if ( outputfile != "/dev/null" ){
+      // Compose the full description for humans :) and print or write
+      if ( debug ) cout << "[generate_rotations: " 
+			<< "beginning compose_description]" << endl;
+      bool writetofile = ( outputfile == "" ) ? 0 : 1;
+      if ( ilevel == 0 ){
+	if ( writetofile ) file.open(outputfile.c_str(),ofstream::out);
+	write_heading(outputfile, writetofile);
+      }
+      if ( debug ) cout << "[generate_rotations: beginning write_level]" << endl;
+      if ( equivalence ){
+	write_description(ltclevel, outputfile, writetofile);
+      } else {
+	write_description(ltelevel, outputfile, writetofile);
+      }
     }
 
     // Preparing the ltelevelm1 for next level
