@@ -32,7 +32,6 @@ configuration by the lowest amount of moves.
 ***********************************************************************
 * INSTALL: run the following commands in your terminal                *
 ***********************************************************************
-./configure
 make
 
 ***********************************************************************
@@ -55,7 +54,7 @@ A total of 4 turns were found within 2 families
 ***********************************************************************
 * TUTORIAL: for further info, please consult the documentation at     *
 ***********************************************************************
-rubik_2^3.ps or in the web http://
+rubik_2^3.pdf or in the web https://github.com/alelorca/rubik_2-3
 
 
 Good luck!
