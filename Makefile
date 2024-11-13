@@ -17,9 +17,8 @@
 #
 TARGET=rubik_2^3
 # For HEPSPEC06
-#CXXFLAGS=-O2 -fPIC -pthread --static -m32
+CXXFLAGS=-O2 -fPIC -pthread --static -Wreturn-type
 #CXXFLAGS=-O3 --static
-#COMPILEFLAGS=-lcln -lginac
 CXX=g++
 OBJECTS:=run_rubik.o rubik.o
 
