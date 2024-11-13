@@ -16,7 +16,9 @@
 # along with rubik_2^3.  If not, see <http://www.gnu.org/licenses/>.
 #
 TARGET=rubik_2^3
-CXXFLAGS=-O3 --static
+# For HEPSPEC06
+#CXXFLAGS=-O2 -fPIC -pthread --static -m32
+#CXXFLAGS=-O3 --static
 #COMPILEFLAGS=-lcln -lginac
 CXX=g++
 OBJECTS:=run_rubik.o rubik.o
@@ -29,7 +31,7 @@ $(TARGET): run_rubik.o rubik.o
 	$(CXX) $(CXXFLAGS) -o $@ $(OBJECTS)
 
 %.o: %.cpp %.h
-	$(CXX) $(CXXFLAGS) -c $< $(COMPILEFLAGS)
+	$(CXX) $(CXXFLAGS) -c $< 
 
 clean:
 	rm -f *.o $(TARGET)
